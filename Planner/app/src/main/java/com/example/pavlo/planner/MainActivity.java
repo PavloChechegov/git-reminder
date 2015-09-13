@@ -1,5 +1,6 @@
 package com.example.pavlo.planner;
 
+import android.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -7,10 +8,14 @@ import android.view.MenuItem;
 
 public class MainActivity extends AppCompatActivity {
 
+    FragmentManager mFragmentManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mFragmentManager = getFragmentManager();
     }
 
     @Override
@@ -34,4 +39,14 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    public void runSplash(){
+        SplashFragment splashFragment = new SplashFragment();
+
+        mFragmentManager.beginTransaction()
+                .replace(R.id.container, splashFragment)
+                .addToBackStack(null)
+                .commit();
+    }
+
 }
