@@ -1,27 +1,45 @@
 package com.example.pavlo.planner;
 
 import android.app.FragmentManager;
+import android.support.design.widget.TabLayout;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewParent;
+
+import com.example.pavlo.planner.adapter.TabAdapter;
+import com.example.pavlo.planner.fragment.SplashFragment;
 
 public class MainActivity extends AppCompatActivity {
 
-    FragmentManager mFragmentManager;
+    PreferenceHelper preferenceHelper;
+    FragmentManager fragmentManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mFragmentManager = getFragmentManager();
+        PreferenceHelper.getInstance().init(getApplicationContext());
+        preferenceHelper = PreferenceHelper.getInstance();
+
+        fragmentManager = getFragmentManager();
+
+        runSplash();
+
+        setUI();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        MenuItem splashItem = menu.findItem(R.id.action_splash);
+        splashItem.setChecked(preferenceHelper.getBoolean(PreferenceHelper.SPLASH_IS_INVISIBLE));
         return true;
     }
 
@@ -33,7 +51,9 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_splash) {
+            item.setChecked(!item.isChecked());
+            preferenceHelper.putBoolean(PreferenceHelper.SPLASH_IS_INVISIBLE, item.isChecked());
             return true;
         }
 
@@ -41,12 +61,49 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void runSplash(){
-        SplashFragment splashFragment = new SplashFragment();
+        if(!preferenceHelper.getBoolean(PreferenceHelper.SPLASH_IS_INVISIBLE)) {
+            SplashFragment splashFragment = new SplashFragment();
 
-        mFragmentManager.beginTransaction()
-                .replace(R.id.container, splashFragment)
-                .addToBackStack(null)
-                .commit();
+            fragmentManager.beginTransaction()
+                    .replace(R.id.content_frame, splashFragment)
+                    .addToBackStack(null)
+                    .commit();
+        }
     }
+
+    public void setUI(){
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);// можливо потрібно буде інший каст тулбару
+        if(toolbar != null){
+            toolbar.setTitleTextColor(getResources().getColor(R.color.white));//
+            setSupportActionBar(toolbar);
+        }
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
+        tabLayout.addTab(tabLayout.newTab().setText(R.string.current_task));
+        tabLayout.addTab(tabLayout.newTab().setText(R.string.done_task));
+
+        final ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
+        TabAdapter tabAdapter = new TabAdapter(fragmentManager, 2);
+
+        viewPager.setAdapter(tabAdapter);
+        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+
+        tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                viewPager.setCurrentItem(tab.getPosition());
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
+    }
+
 
 }

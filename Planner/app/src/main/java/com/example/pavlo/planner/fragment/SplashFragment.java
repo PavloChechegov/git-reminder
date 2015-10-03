@@ -1,4 +1,4 @@
-package com.example.pavlo.planner;
+package com.example.pavlo.planner.fragment;
 
 
 import android.os.AsyncTask;
@@ -7,6 +7,9 @@ import android.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.example.pavlo.planner.R;
+
 import java.util.concurrent.*;
 
 
@@ -25,6 +28,9 @@ public class SplashFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        SplashTask splashTask = new SplashTask();
+        splashTask.execute();
+
         return inflater.inflate(R.layout.fragment_splash, container, false);
     }
 
@@ -37,6 +43,9 @@ public class SplashFragment extends Fragment {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+
+            getActivity().getFragmentManager().popBackStack();
+
             return null;
         }
     }
